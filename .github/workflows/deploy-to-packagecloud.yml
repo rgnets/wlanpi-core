@@ -47,8 +47,8 @@ jobs:
         uses: danielmundi/upload-packagecloud@main
         with:
           package-name: ${{ steps.build-debian-package.outputs.deb-package }}
-          packagecloud-username: wlanpi
-          packagecloud-repo: dev
+          packagecloud-username: "${{ vars.PACKAGECLOUD_USER || 'wlanpi' }}"
+          packagecloud-repo: "${{ vars.PACKAGECLOUD_REPO || 'dev' }}"
           packagecloud-distrib: raspbian/${{ matrix.distro }}
           packagecloud-token: ${{ secrets.PACKAGECLOUD_TOKEN }}
 
@@ -57,8 +57,8 @@ jobs:
         uses: danielmundi/upload-packagecloud@main
         with:
           package-name: ${{ steps.build-debian-package.outputs.deb-package }}
-          packagecloud-username: wlanpi
-          packagecloud-repo: dev
+          packagecloud-username: "${{ vars.PACKAGECLOUD_USER || 'wlanpi' }}"
+          packagecloud-repo: "${{ vars.PACKAGECLOUD_REPO || 'dev' }}"
           packagecloud-distrib: debian/${{ matrix.distro }}
           packagecloud-token: ${{ secrets.PACKAGECLOUD_TOKEN }}
   
