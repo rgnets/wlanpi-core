@@ -1,6 +1,7 @@
 import json
 import logging
 import re
+from typing import List
 
 from wlanpi_core.models.command_result import CommandResult
 from wlanpi_core.services.network.namespace.models.network_namespace_errors import NetworkNamespaceNotFoundError, \
@@ -31,6 +32,12 @@ class NetworkNamespace():
         Lists all processes currently running in a namespace
         """
         return NetworkNamespace.processes_using_namespace(self.name)
+
+    def run_command(self, namespace_name: str, command: List[str],  shell=False, raise_on_fail=True ) -> CommandResult:
+        """
+        Runs a command in the context of this network namespace
+        """
+        return NetworkNamespace.run_command_in_namespace(self.name, command, shell=shell, raise_on_fail=raise_on_fail)
 
     def destroy(self):
         """
@@ -82,6 +89,15 @@ class NetworkNamespace():
         Returns all interfaces that belong to a network namespace, a la ifconfig
         """
         return run_command(f"ip netns exec {namespace_name} jc ifconfig -a".split()).output_from_json()
+
+    @staticmethod
+    def run_command_in_namespace(namespace_name: str, command: List[str],  shell=False, raise_on_fail=True ) -> CommandResult:
+        """
+        Runs a command in the context of a network namespace
+        """
+        built_command = ['ip', 'netns', 'exec', namespace_name, *command]
+        NetworkNamespace._static_logger.debug(f"Running command: {built_command}")
+        return run_command(built_command, raise_on_fail=raise_on_fail, shell=shell)
 
     @staticmethod
     def destroy_namespace(namespace_name: str):
