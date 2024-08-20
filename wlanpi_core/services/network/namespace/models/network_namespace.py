@@ -92,3 +92,9 @@ class NetworkNamespace():
         if not res.success:
             raise NetworkNamespaceError(f"Unable to destroy namespace {namespace_name} {res.error}")
 
+    @staticmethod
+    def processes_using_namespace(namespace_name: str):
+        result = run_command(f"ip netns pids {namespace_name}".split(), raise_on_fail=False)
+        if not result.success:
+            raise NetworkNamespaceError(f"Error getting namespace processes: {result.error}")
+        return list(filter(None, result.output.split('\n') or []))
