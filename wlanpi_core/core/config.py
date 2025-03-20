@@ -2,15 +2,19 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
+from wlanpi_core import constants
+
 
 class Settings(BaseSettings):
-    API_V1_STR: str = "/api/v1"
+    API_DEFAULT_TIMEOUT: int = 20
 
-    PROJECT_NAME: str = "wlanpi-core"
+    ACCESS_TOKEN_EXPIRE_DAYS: int = 7
 
-    PROJECT_DESCRIPTION: str = """
-    The wlanpi-core API provides endpoints for applications on the WLAN Pi to share data. 🚀
-    """
+    API_V1_STR: str = constants.API_V1_STR
+
+    PROJECT_NAME: str = constants.PROJECT_NAME
+
+    PROJECT_DESCRIPTION: str = constants.PROJECT_DESCRIPTION
 
     TAGS_METADATA: list = [
         {

@@ -9,7 +9,8 @@ from wlanpi_core.models.network.namespace.namespace_errors import (
 )
 from wlanpi_core.utils.general import run_command
 
-# log = logging.getLogger("uvicorn")
+# from wlanpi_core.core.logging import get_logger
+log = get_logger(__name__)
 
 
 class NetworkNamespace:
@@ -78,7 +79,7 @@ class NetworkNamespace:
         """
         result = run_command("ip -j netns list".split(), raise_on_fail=False)
         if not result.success:
-            raise NetworkNamespaceError(f"Error listing namespaces: {result.error}")
+            raise NetworkNamespaceError(f"Error listing namespaces: {result.stderr}")
         return result.output_from_json() or []
 
     @staticmethod
@@ -153,7 +154,7 @@ class NetworkNamespace:
                 res = run_command(
                     f"ip netns exec {namespace_name} iw dev {interface['name']} info".split()
                 )
-                phynum = re.findall(r"wiphy ([0-9]+)", res.output)[0]
+                phynum = re.findall(r"wiphy ([0-9]+)", res.stdout)[0]
                 phy = f"phy{phynum}"
 
                 res = run_command(
@@ -162,7 +163,7 @@ class NetworkNamespace:
                 )
                 if not res.success:
                     raise NetworkNamespaceError(
-                        f"Failed to move wireless interface {interface['name']} to default namespace: {res.error}"
+                        f"Failed to move wireless interface {interface['name']} to default namespace: {res.stderr}"
                     )
 
             elif interface["name"].startswith("eth"):
@@ -172,7 +173,7 @@ class NetworkNamespace:
                 )
                 if not res.success:
                     raise NetworkNamespaceError(
-                        f"Failed to move wired interface {interface['name']} to default namespace: {res.error}"
+                        f"Failed to move wired interface {interface['name']} to default namespace: {res.stderr}"
                     )
 
             elif interface["name"].startswith("lo"):
@@ -188,7 +189,7 @@ class NetworkNamespace:
         res = run_command(f"ip netns del {namespace_name}".split(), raise_on_fail=False)
         if not res.success:
             raise NetworkNamespaceError(
-                f"Unable to destroy namespace {namespace_name} {res.error}"
+                f"Unable to destroy namespace {namespace_name} {res.stderr}"
             )
 
     @staticmethod
@@ -201,6 +202,6 @@ class NetworkNamespace:
         )
         if not result.success:
             raise NetworkNamespaceError(
-                f"Error getting namespace processes: {result.error}"
+                f"Error getting namespace processes: {result.stderr}"
             )
-        return [int(x) for x in filter(None, result.output.split("\n") or [])]
+        return [int(x) for x in filter(None, result.stdout.split("\n") or [])]
